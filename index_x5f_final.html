@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mis Gastos - Octubre 2026</title>
+<style>
+:root{--bg:#f6f5f2;--card:#fff;--ink:#111827;--muted:#8b95a5;--line:#f0eee9;--green:#10b981;--green-bg:#e8f8f1;--dark:#111827}
+*{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto}
+body{margin:0;background:var(--bg);color:var(--ink);padding:14px 12px 40px}
+h1{margin:0;font-size:32px;letter-spacing:-0.5px}
+.sub{color:var(--muted);font-size:14px;margin-top:4px}
+.card{background:var(--card);border-radius:24px;box-shadow:0 8px 24px rgba(0,0,0,.06);padding:16px;margin:14px 0}
+.pill{border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
+.pill-dark{background:var(--dark);color:#fff;border:none}
+.pill-light{background:#f5f3ef;color:var(--muted)}
+.pill-green{background:#d1fae5;color:#065f46}
+.pill-green-dark{background:#064e3b;color:#d1fae5}
+.input{width:100%;padding:14px 16px;border-radius:999px;border:1.5px solid #e9e6e0;background:#fafaf8;font-size:15px;outline:none;margin:7px 0}
+.input:focus{border-color:var(--green);background:#fff}
+.row{display:flex;gap:12px;margin-top:8px}
+.row .input{flex:1;margin:0}
+.cat{display:flex;gap:10px;overflow:auto;padding:8px 0 12px 0;margin-top:10px;scrollbar-width:none}
+.cat::-webkit-scrollbar{display:none}
+.cat button{white-space:nowrap;border-radius:999px;padding:10px 16px;border:1.5px solid #e9e6e0;background:#fff;font-weight:600}
+.cat button.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.kpi-box{background:#fff;border-radius:20px;padding:14px;box-shadow:0 4px 12px rgba(0,0,0,.05)}
+.kpi-box.green{background:#e6f9f0;border:1.5px solid #c7f0df}
+.big{font-size:28px;font-weight:800;letter-spacing:-0.5px}
+.bar{height:8px;background:#f1efea;border-radius:999px;overflow:hidden;margin-top:10px}
+.bar>div{height:100%;border-radius:999px;background:var(--green)}
+.item{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border:none}
+.ico{width:44px;height:44px;border-radius:999px;display:grid;place-items:center;font-size:20px}
+.i-comida{background:#fef3c7}.i-trans{background:#dbeafe}.i-compras{background:#d1fae5}.i-serv{background:#fef9c3}
+.btn-icon{width:36px;height:36px;border-radius:999px;border:none;background:#f5f3ef;color:#6b7280}
+.donut{width:200px;height:200px;border-radius:50%;margin:20px auto;position:relative;display:grid;place-items:center}
+.donut:after{content:'';width:120px;height:120px;background:#fff;border-radius:50%;position:absolute}
+.donut-c{z-index:1;text-align:center}
+.filters{display:flex;background:#f1efea;border-radius:999px;padding:4px;gap:4px}
+.filters button{flex:1;border:none;background:transparent;padding:10px;border-radius:999px;font-weight:600;color:#6b7280}
+.filters button.active{background:var(--dark);color:#fff}
+</style>
+</head>
+<body>
+
+<h1>Mis Gastos</h1>
+<div class="sub">Octubre 2026 · Control diario en USD</div>
+<button class="pill pill-dark" style="margin-top:12px" onclick="exportCSV()">↗ Exportar CSV</button>
+
+<div class="card">
+  <div style="display:flex;gap:10px;align-items:center"><div style="background:#10b981;width:36px;height:36px;border-radius:999px;display:grid;place-items:center;color:#fff">↑</div><b>Mis Ingresos del Mes</b></div>
+  <div class="sub" style="margin:10px 0">Agrega sueldo, freelance, extras. Se guarda en este navegador.</div>
+  <div style="display:flex;gap:12px;align-items:center"><span class="sub" style="font-weight:700;letter-spacing:1px">TOTAL INGRESOS OCT</span><span style="margin-left:auto;font-size:28px;font-weight:800;color:#059669" id="totalIng">$1200.00</span><span style="width:36px;height:36px;background:#e6f9f0;border-radius:999px;display:grid;place-items:center">💰</span></div>
+  <input id="descIng" class="input" placeholder="Descripción · Ej: Sueldo, Freelance..." style="margin-top:14px">
+  <input id="montoIng" type="number" class="input" placeholder="$ 0.00">
+  <div class="row">
+    <input id="fechaIng" type="date" class="input" value="2026-10-03">
+    <button class="pill pill-dark" style="background:#a7f3d0;color:#065f46;min-width:110px;justify-content:center" onclick="addIngreso()">+ Agregar</button>
+  </div>
+  <div id="listaIng" style="margin-top:12px"></div>
+</div>
+
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center"><span class="sub" style="font-weight:700;letter-spacing:1px">USO DEL PRESUPUESTO</span><span class="pill pill-green">En control</span></div>
+  <div style="margin-top:10px"><b id="pctTxt">8% gastado</b> <span class="sub" id="pctSub">$94 / $1200</span></div>
+  <div class="bar"><div id="barPct" style="width:8%"></div></div>
+  <div style="display:flex;justify-content:space-between;margin-top:8px" class="sub"><span>0%</span><span>80% límite prudente</span><span>100%</span></div>
+</div>
+
+<div class="kpi">
+  <div class="kpi-box"><div class="sub">TOTAL INGRESOS</div><div class="big" style="color:#059669" id="kpiIng">$1200.00</div><div class="sub" id="kpiIngC">1 ingresos</div></div>
+  <div class="kpi-box"><div class="sub">TOTAL GASTOS</div><div class="big" id="kpiGas">$94.35</div><div class="sub" id="kpiGasP">8% de ingresos</div></div>
+  <div class="kpi-box green"><div style="display:flex;justify-content:space-between"><span class="sub" style="color:#065f46;font-weight:700">TE SOBRA</span><span class="pill pill-green-dark" id="kpiLibreP">92% libre</span></div><div class="big" style="color:#065f46" id="kpiSobra">$1105.65</div><div class="sub" style="color:#065f46">● En positivo</div></div>
+  <div class="kpi-box"><div class="sub">HOY</div><div class="big" id="kpiHoy">$16.45</div><div class="sub">● <span id="diaSem">sábado</span></div></div>
+</div>
+
+<div class="card">
+  <div style="display:flex;justify-content:space-between"><b>Nuevo gasto</b><span class="sub" id="fechaHoy">Fecha: 03/10/2026</span></div>
+  <input id="descGas" class="input" placeholder="Descripción · Ej: Almuerzo, Uber..." style="margin-top:12px">
+  <input id="montoGas" type="number" class="input" placeholder="$ 0.00">
+  <div class="cat" id="catRow">
+    <button data-cat="Comida">🍔 Comida</button>
+    <button data-cat="Transporte" class="active">🚕 Transporte</button>
+    <button data-cat="Hogar">🏠 Hogar</button>
+    <button data-cat="Compras">🛒 Compras</button>
+    <button data-cat="Servicios">💡 Servicios</button>
+    <button data-cat="Educación">🎓 Educación</button>
+    <button data-cat="Préstamos">🏦 Préstamos</button>
+    <button data-cat="Tarjetas">💳 Tarjetas</button>
+    <button data-cat="Salud">🩺 Salud</button>
+    <button data-cat="Ocio">🎮 Ocio</button>
+    <button data-cat="Varios">📦 Varios</button>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <input id="fechaGas" type="date" class="input" value="2026-10-03">
+  </div>
+  <button class="input" style="background:#f8f6f1;color:#a8a29a;font-weight:700;border:none;margin-top:10px" id="btnAddGas" onclick="addGasto()">Agregar gasto · $0.00</button>
+</div>
+
+<div class="card">
+  <div class="filters"><button onclick="setFiltro('hoy')">Hoy</button><button onclick="setFiltro('semana')">Semana</button><button class="active" onclick="setFiltro('mes')">Mes</button><button onclick="setFiltro('todo')">Todo</button></div>
+  <input id="buscar" class="input" placeholder="⌕ Buscar descripción..." style="margin-top:12px" oninput="render()">
+</div>
+
+<div class="card">
+  <div style="display:flex;justify-content:space-between"><b>Este mes <span style="color:#9aa3b2" id="countMes">5</span></b><span class="pill pill-light" id="totalMes">94.35 USD</span></div>
+  <div id="listaMes"></div>
+</div>
+
+<div class="card" id="distCard">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start"><div><b>Distribución por categoría</b><div class="sub" id="distSub">Solo gastos · Octubre · 5 mov</div><div class="pill pill-green" style="margin-top:8px" id="distBal">● Balance: $1105.65 sobra</div></div><button class="pill" style="background:#fff1f2;color:#b91c1c;border:1px solid #fecdd3" onclick="borrarTodo()">Borrar todo el mes</button></div>
+  <div class="donut" id="donut"><div class="donut-c"><b style="font-size:26px" id="donutTot">$94.35</b><div class="sub">este mes</div></div></div>
+  <div id="distList"></div>
+  <div class="kpi" style="margin-top:14px">
+    <div style="background:#fafaf7;padding:12px;border-radius:16px"><div class="sub">MAYOR GASTO</div><div><b id="mayorTxt">Compras · $42.90</b></div></div>
+    <div style="background:#fafaf7;padding:12px;border-radius:16px"><div class="sub">QUEDA LIBRE</div><div style="color:#059669;font-weight:800" id="quedaTxt">$1105.65 · 92%</div></div>
+  </div>
+</div>
+
+<script>
+let ingresos = JSON.parse(localStorage.getItem('ing_premium_v3')||'[{"d":"Sueldo principal","m":1200,"f":"2026-10-01","ts":1727740800000}]');
+let gastos = JSON.parse(localStorage.getItem('gas_premium_v3')||'[{"d":"Café y croissant","m":3.75,"c":"Comida","f":"2026-10-03","ts":1727913600000},{"d":"Taxi a oficina","m":4.2,"c":"Transporte","f":"2026-10-03","ts":1727913600000},{"d":"Almuerzo ejecutivo","m":8.5,"c":"Comida","f":"2026-10-03","ts":1727913600000},{"d":"Supermercado","m":42.9,"c":"Compras","f":"2026-10-02","ts":1727827200000},{"d":"Internet fibra","m":35,"c":"Servicios","f":"2026-10-01","ts":1727740800000}]');
+let catSel='Transporte', filtro='mes';
+
+document.querySelectorAll('#catRow button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#catRow button').forEach(x=>x.classList.remove('active'));b.classList.add('active');catSel=b.dataset.cat;});
+
+function save(){localStorage.setItem('ing_premium_v3',JSON.stringify(ingresos));localStorage.setItem('gas_premium_v3',JSON.stringify(gastos));}
+function addIngreso(){let d=descIng.value.trim(),m=parseFloat(montoIng.value),f=fechaIng.value;if(!d||!m)return alert('Falta dato');ingresos.push({d,m,f,ts:new Date(f).getTime()});save();descIng.value='';montoIng.value='';render();}
+function addGasto(){let d=descGas.value.trim(),m=parseFloat(montoGas.value),f=fechaGas.value;if(!d||!m)return alert('Falta dato');gastos.push({d,m,c:catSel,f,ts:new Date(f).getTime()});save();descGas.value='';montoGas.value='';render();}
+function setFiltro(v){filtro=v;document.querySelectorAll('.filters button').forEach((b,i)=>{b.classList.toggle('active',b.textContent.toLowerCase()===v)});render();}
+function borrarTodo(){if(confirm('¿Borrar todo el mes?')){gastos=gastos.filter(g=> new Date(g.ts).getMonth()!== new Date().getMonth());save();render();}}
+function delIng(i){ingresos.splice(i,1);save();render();}
+function delGas(i){gastos.splice(i,1);save();render();}
+
+function iconFor(c){
+ if(c==='Comida') return ['i-comida','🍔'];
+ if(c==='Transporte') return ['i-trans','🚕'];
+ if(c==='Compras') return ['i-compras','🛒'];
+ if(c==='Servicios') return ['i-serv','💡'];
+ if(c==='Educación') return ['i-serv','🎓'];
+ if(c==='Préstamos') return ['i-trans','🏦'];
+ if(c==='Tarjetas') return ['i-compras','💳'];
+ if(c==='Salud') return ['i-serv','🩺'];
+ if(c==='Ocio') return ['i-comida','🎮'];
+ if(c==='Varios') return ['i-serv','📦'];
+ return ['i-serv','💡'];
+}
+function colorFor(c){
+ if(c==='Compras') return '#10b981';
+ if(c==='Servicios') return '#facc15';
+ if(c==='Comida') return '#f59e0b';
+ if(c==='Transporte') return '#3b82f6';
+ if(c==='Educación') return '#8b5cf6';
+ if(c==='Préstamos') return '#ef4444';
+ if(c==='Tarjetas') return '#06b6d4';
+ if(c==='Salud') return '#ec4899';
+ if(c==='Ocio') return '#f97316';
+ if(c==='Varios') return '#9ca3af';
+ return '#9ca3af';
+}
+
+function render(){
+ let totalIng = ingresos.reduce((a,b)=>a+b.m,0);
+ let totalGas = gastos.reduce((a,b)=>a+b.m,0);
+ let hoyGas = gastos.filter(g=> new Date(g.ts).toDateString()===new Date().toDateString()).reduce((a,b)=>a+b.m,0);
+ let sobra = totalIng-totalGas;
+ let pct = totalIng? Math.round(totalGas/totalIng*100):0;
+
+ document.getElementById('totalIng').innerText='$'+totalIng.toFixed(2);
+ document.getElementById('kpiIng').innerText='$'+totalIng.toFixed(2);
+ document.getElementById('kpiIngC').innerText=ingresos.length+' ingresos';
+ document.getElementById('kpiGas').innerText='$'+totalGas.toFixed(2);
+ document.getElementById('kpiGasP').innerText=pct+'% de ingresos';
+ document.getElementById('kpiSobra').innerText='$'+sobra.toFixed(2);
+ document.getElementById('kpiLibreP').innerText=Math.max(0,100-pct)+'% libre';
+ document.getElementById('kpiHoy').innerText='$'+hoyGas.toFixed(2);
+ document.getElementById('pctTxt').innerText=pct+'% gastado';
+ document.getElementById('pctSub').innerText=`$${totalGas.toFixed(0)} / $${totalIng.toFixed(0)}`;
+ document.getElementById('barPct').style.width=pct+'%';
+ document.getElementById('totalMes').innerText=totalGas.toFixed(2)+' USD';
+ document.getElementById('countMes').innerText=gastos.length;
+ document.getElementById('donutTot').innerText='$'+totalGas.toFixed(2);
+ document.getElementById('distBal').innerText='● Balance: $'+sobra.toFixed(2)+' sobra';
+ document.getElementById('quedaTxt').innerText='$'+sobra.toFixed(2)+' · '+(100-pct)+'%';
+ document.getElementById('distSub').innerText=`Solo gastos · ${new Date().toLocaleString('es',{month:'long'})} · ${gastos.length} mov`;
+
+ // ingresos list
+ document.getElementById('listaIng').innerHTML=ingresos.slice().reverse().map((x,ri)=>{
+   let i=ingresos.length-1-ri;
+   return `<div class="item"><div style="display:flex;gap:10px;align-items:center"><div class="ico" style="background:#d1fae5"> $ </div><div><b>${x.d}</b><div class="sub">${new Date(x.f).toLocaleDateString('es-EC')}</div></div></div><div style="display:flex;gap:8px;align-items:center"><b style="color:#059669">+$${x.m.toFixed(2)}</b><button class="btn-icon" onclick="delIng(${i})">🗑️</button></div></div>`;
+ }).join('');
+
+ // filtrado mes
+ let bus = document.getElementById('buscar').value.toLowerCase();
+ let list = gastos.slice().reverse().filter(g=> !bus || g.d.toLowerCase().includes(bus));
+ document.getElementById('listaMes').innerHTML = list.map((x,ri)=>{
+   let ico=iconFor(x.c);
+   let idx=gastos.length-1-ri;
+   return `<div class="item"><div style="display:flex;gap:12px;align-items:center"><div class="ico ${ico[0]}">${ico[1]}</div><div><b>${x.d}</b><div class="sub">${new Date(x.f).toLocaleDateString('es-EC')} · ${x.c}</div></div></div><div style="display:flex;gap:6px;align-items:center"><b>-$${x.m.toFixed(2)}</b><button class="btn-icon" onclick="delGas(${idx})">✎</button><button class="btn-icon" onclick="delGas(${idx})">🗑️</button></div></div>`;
+ }).join('');
+
+ // distribucion
+ let porCat={}; list.forEach(g=>porCat[g.c]=(porCat[g.c]||0)+g.m);
+ let mayor = Object.entries(porCat).sort((a,b)=>b[1]-a[1])[0];
+ if(mayor) document.getElementById('mayorTxt').innerText=`${mayor[0]} · $${mayor[1].toFixed(2)}`;
+
+ let htmlDist=''; Object.entries(porCat).sort((a,b)=>b[1]-a[1]).forEach(([c,v])=>{
+   let pctC = totalGas? Math.round(v/totalGas*100):0;
+   let emoji=c==='Compras'?'🛒':c==='Servicios'?'💡':c==='Comida'?'🍔':c==='Transporte'?'🚕':c==='Educación'?'🎓':c==='Préstamos'?'🏦':c==='Tarjetas'?'💳':c==='Salud'?'🩺':c==='Ocio'?'🎮':'📦';
+   htmlDist+=`<div style="margin:14px 0"><div style="display:flex;justify-content:space-between"><div style="display:flex;gap:8px"><div style="width:10px;height:10px;border-radius:999px;background:${colorFor(c)};margin-top:6px"></div><div>${emoji} ${c}</div></div><div style="display:flex;gap:16px"><b>$${v.toFixed(2)}</b><span class="sub">${pctC}%</span></div></div><div class="bar"><div style="width:${pctC}%;background:${colorFor(c)}"></div></div></div>`;
+ });
+ document.getElementById('distList').innerHTML=htmlDist;
+
+ // donut
+ let acc=0, grad=[];
+ Object.entries(porCat).forEach(([c,v])=>{let s=acc,e=acc+(v/totalGas*100);grad.push(`${colorFor(c)} ${s}% ${e}%`);acc=e;});
+ if(grad.length) document.getElementById('donut').style.background=`conic-gradient(${grad.join(',')})`;
+
+ // boton gasto
+ let mg=parseFloat(document.getElementById('montoGas').value)||0;
+ document.getElementById('btnAddGas').innerText=`Agregar gasto · $${mg.toFixed(2)}`;
+}
+document.getElementById('montoGas').addEventListener('input',render);
+document.getElementById('diaSem').innerText=new Date().toLocaleDateString('es',{weekday:'long'});
+render();
+
+function exportCSV(){
+ let csv='Tipo,Descripcion,Monto,Categoria,Fecha\n'+ingresos.map(x=>`Ingreso,"${x.d}",${x.m},,${x.f}`).join('\n')+'\n'+gastos.map(x=>`Gasto,"${x.d}",${x.m},${x.c},${x.f}`).join('\n');
+ let blob=new Blob([csv],{type:'text/csv'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mis-gastos.csv';a.click();
+}
+</script>
+</body>
+</html>
